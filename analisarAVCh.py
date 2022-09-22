@@ -5,7 +5,7 @@ satscan.abrirTomografiaDycom -- shortdesc
 
 @author:     Augusto Camarotti
 
-@license:    license
+@license:    GPL 3.0
 
 @contact:    augustoccl@gmail.com
 '''
@@ -26,6 +26,7 @@ from criteriosAVCh import CriterioAVChDensidadeMinima;
 from criteriosAVCh import CriterioAVChRelacaoAreaContentora;
 from criteriosAVCh import CriterioAVChPertencimentoCaixaCraniana;
 from criteriosAVCh import CriterioAVChEntornoNegativo;
+from resultReports import Reports;
 import multiprocessing;
 from multiprocessing import Manager, Value, Array;
 from multiprocessing.managers import BaseManager;
@@ -60,6 +61,9 @@ class Tomografia:
     
     def getLaudoRadiologista(self):
         return self.laudoRadiologista;
+
+    def setLaudoRadiologista(self, laudo):
+        self.laudoRadiologista = laudo;
     
     def getCorteOriginal(self, c):
         return self.cortesOriginais[c];
@@ -130,11 +134,6 @@ class Tomografia:
         self.diagnostico = "";      
         #cria uma lista pra guardar as regiões contiguas
         self.regioesContiguas = {};
-        
-        #Atribui o laudo radiologista caso esteja escrito na pasta
-        self.laudoRadiologista = 'Sem Alteracoes';
-        if 'avch' in self.pasta.lower():
-            self.laudoRadiologista = 'AVCh';
         
         # Abrir a pasta com as tomografias e ler as imagens
         arquivosDcm = [y for x in os.walk(self.pasta) for y in glob(os.path.join(x[0], '*.dcm'))];
@@ -780,8 +779,12 @@ def salvarTomografiaProcessadaPng(tomografia):
     print('Salvar imagens processadas - finalizada: %.2f segundos' % (time.perf_counter()-t0)); 
     
 def main(argv=None):
+
+    #Opens the csv file with all the results read from the files
+    reports = Reports('H:/rsna-intracranial-hemorrhage-detection/stage_2_train.csv');
+
     #Abrindo todas as tomografias de uma pasta
-    pastaTomografias = 'c:/tomografias/analise/';
+    pastaTomografias = 'H:/rsna-intracranial-hemorrhage-detection/stage_2_train';
     pastas = [pastaTomografias+name for name in os.listdir(pastaTomografias) if os.path.isdir(pastaTomografias+'./'+name)];
     #Lendo todos os criterios a serem utilizados na analise
     criterios = [  # CriterioCircularidadePequenasAreas(),
@@ -819,6 +822,14 @@ def main(argv=None):
                 print("A pasta %s não contém uma tomografia válida" % pasta);
                 continue;
             qtdTomografias += 1;
+            
+            #Defining the report of the CTScan
+            laudo = 'Sem Alteracoes';
+            if :
+                laudo = 'AVCh';            
+            tomografiaAnalisada.setLaudoRadiologista(laudo);
+            
+
             #Acrescentando o laudo a contagem das tomografias
             if tomografiaAnalisada.getLaudoRadiologista() == 'AVCh':
                 qtdAVCh += 1;
